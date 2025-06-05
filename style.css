@@ -1,31 +1,13 @@
 body {
-  font-family: Arial, sans-serif;
   text-align: center;
+  font-family: sans-serif;
+  background-color: #222;
+  color: white;
 }
 
-#board {
-  display: grid;
-  grid-template-columns: repeat(10, 50px);
-  grid-template-rows: repeat(10, 50px);
-  width: 500px;
-  height: 500px;
-  margin: 20px auto;
-  border: 2px solid #000;
-  position: relative;
-}
-
-.cell {
-  border: 1px solid #ccc;
-  box-sizing: border-box;
-  position: relative;
-}
-
-.player {
-  width: 40px;
-  height: 40px;
-  background: red;
-  border-radius: 50%;
-  position: absolute;
-  transition: all 0.5s ease;
-  z-index: 10;
+canvas {
+  background-color: #000;
+  border: 2px solid #fff;
+  display: block;
+  margin: 0 auto;
 }
