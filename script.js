@@ -1,65 +1,93 @@
-const board = document.getElementById("board");
-const player = document.getElementById("player");
-const diceText = document.getElementById("dice");
+const canvas = document.getElementById("gameCanvas");
+const ctx = canvas.getContext("2d");
 
-const ladders = {
-  3: 22,
-  5: 8,
-  11: 26,
-  20: 29,
-  17: 4
+const box = 20;
+const canvasSize = 400;
+const rows = canvasSize / box;
+const cols = canvasSize / box;
+
+let score = 0;
+let snake = [{ x: 9 * box, y: 9 * box }];
+let direction = "";
+let ball = {
+  x: Math.floor(Math.random() * cols) * box,
+  y: Math.floor(Math.random() * rows) * box
 };
 
-const snakes = {
-  27: 1,
-  21: 9,
-  19: 7,
-  23: 15
-};
+// Load sounds
+const eatSound = document.getElementById("eatSound");
+const gameOverSound = document.getElementById("gameOverSound");
+const bgMusic = document.getElementById("bgMusic");
 
-let playerPosition = 1;
+// Ensure background music starts
+bgMusic.volume = 0.3;
+bgMusic.play();
 
-// Create the board
-for (let i = 100; i > 0; i--) {
-  const cell = document.createElement("div");
-  cell.classList.add("cell");
-  cell.textContent = i;
-  board.appendChild(cell);
+document.addEventListener("keydown", changeDirection);
+
+function changeDirection(e) {
+  if (e.key === "ArrowUp" && direction !== "DOWN") direction = "UP";
+  else if (e.key === "ArrowDown" && direction !== "UP") direction = "DOWN";
+  else if (e.key === "ArrowLeft" && direction !== "RIGHT") direction = "LEFT";
+  else if (e.key === "ArrowRight" && direction !== "LEFT") direction = "RIGHT";
 }
 
-// Convert board position to x, y grid position
-function getCoordinates(position) {
-  const row = Math.floor((position - 1) / 10);
-  const col = (position - 1) % 10;
-  const x = (row % 2 === 0) ? col * 50 : (9 - col) * 50;
-  const y = (9 - row) * 50;
-  return { x, y };
-}
+function draw() {
+  ctx.clearRect(0, 0, canvasSize, canvasSize);
 
-function rollDice() {
-  const dice = Math.floor(Math.random() * 6) + 1;
-  diceText.textContent = `You rolled a ${dice}`;
+  // Draw ball (red)
+  ctx.fillStyle = "red";
+  ctx.fillRect(ball.x, ball.y, box, box);
 
-  let nextPosition = playerPosition + dice;
-  if (nextPosition > 100) return;
-
-  // Check for ladder or snake
-  if (ladders[nextPosition]) {
-    nextPosition = ladders[nextPosition];
-    diceText.textContent += ` 🎉 Ladder to ${nextPosition}`;
-  } else if (snakes[nextPosition]) {
-    nextPosition = snakes[nextPosition];
-    diceText.textContent += ` 🐍 Snake to ${nextPosition}`;
+  // Draw snake (green)
+  for (let i = 0; i < snake.length; i++) {
+    ctx.fillStyle = i === 0 ? "#00ff00" : "green";
+    ctx.fillRect(snake[i].x, snake[i].y, box, box);
   }
 
-  playerPosition = nextPosition;
+  let head = { x: snake[0].x, y: snake[0].y };
 
-  // Update player position visually
-  const { x, y } = getCoordinates(playerPosition);
-  player.style.left = x + 5 + "px";
-  player.style.top = y + 5 + "px";
+  if (direction === "UP") head.y -= box;
+  if (direction === "DOWN") head.y += box;
+  if (direction === "LEFT") head.x -= box;
+  if (direction === "RIGHT") head.x += box;
 
-  if (playerPosition === 100) {
-    alert("🎉 Congratulations! You win!");
+  // Game Over
+  if (
+    head.x < 0 || head.x >= canvasSize ||
+    head.y < 0 || head.y >= canvasSize ||
+    collision(head, snake)
+  ) {
+    clearInterval(game);
+    bgMusic.pause();
+    gameOverSound.play();
+    alert("Game Over! Your score: " + score);
+    return;
   }
+
+  // Eat Ball
+  if (head.x === ball.x && head.y === ball.y) {
+    score++;
+    eatSound.play();
+    document.getElementById("score").textContent = "Score: " + score;
+
+    // Generate new ball
+    ball = {
+      x: Math.floor(Math.random() * cols) * box,
+      y: Math.floor(Math.random() * rows) * box
+    };
+  } else {
+    snake.pop();
+  }
+
+  snake.unshift(head);
 }
+
+function collision(head, snake) {
+  for (let i = 0; i < snake.length; i++) {
+    if (head.x === snake[i].x && head.y === snake[i].y) return true;
+  }
+  return false;
+}
+
+let game = setInterval(draw, 150);
