@@ -2,16 +2,20 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Snake and Ladder</title>
+  <title>Snake and Ball Game</title>
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <h1>Snake and Ladder Game</h1>
-  <div id="board"></div>
-  <button onclick="rollDice()">Roll Dice 🎲</button>
-  <p id="dice">Roll the dice!</p>
-  <div id="player" class="player"></div>
+  <h1>Snake and Ball Game</h1>
+  <canvas id="gameCanvas" width="400" height="400"></canvas>
+  <p id="score">Score: 0</p>
+
+  <!-- Audio elements -->
+  <audio id="eatSound" src="eat.mp3"></audio>
+  <audio id="gameOverSound" src="gameover.mp3"></audio>
+  <audio id="bgMusic" src="background.mp3" loop autoplay></audio>
 
   <script src="script.js"></script>
 </body>
 </html>
+
